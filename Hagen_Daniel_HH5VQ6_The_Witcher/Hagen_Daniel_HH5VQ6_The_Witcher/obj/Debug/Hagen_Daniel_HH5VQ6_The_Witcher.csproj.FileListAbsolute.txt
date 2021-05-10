@@ -1,0 +1,7 @@
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\bin\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.exe.config
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\bin\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.exe
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\bin\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.pdb
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\obj\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.csprojAssemblyReference.cache
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\obj\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.csproj.CoreCompileInputs.cache
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\obj\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.exe
+C:\Users\Dani\source\repos\Hagen_Daniel_HH5VQ6_The_Witcher\Hagen_Daniel_HH5VQ6_The_Witcher\obj\Debug\Hagen_Daniel_HH5VQ6_The_Witcher.pdb
