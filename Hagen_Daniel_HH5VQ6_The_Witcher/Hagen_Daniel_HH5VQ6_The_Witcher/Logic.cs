@@ -30,7 +30,7 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
         //public event OnTheWay OnTheWayEvent;
         private void _Greedy(ref CitiesGraphV2<ListOfContracts<Contract>, string> currentMap/*,ref string[] labels*/, Vertex CurrentPosition, int days)
         {
-            if (HasContract(CurrentPosition) == true)
+            if (HasContract(CurrentPosition) == true && days > 0)
             {
                 if (days > 2)
                 {
@@ -49,13 +49,14 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
                     {
                         // Get a better description
                         //labels[days - 1] = "OnTheWayToTheNextCity";
+                        OnTheSpotEvent?.Invoke(NextHop(currentMap, CurrentPosition).label, null);
                         _Greedy(ref currentMap/*, ref labels*/, NextHop(currentMap, CurrentPosition), days - 1);
-                        OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+                        //OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
                         //OnTheWayEvent?.Invoke(CurrentPosition.label);
                         //Console.WriteLine($"You have to travel to {CurrentPosition.label}");
                     }
                 }
-                else if (days > 0)
+                else if (days > 1)
                 {
                     if (BetterNeighborLastTwoDays(currentMap, CurrentPosition) /*&& HasContract(CurrentPosition)==true*/) //if the current position has a better contract then the neighbors - //&& CURRENTPOSITIONNEK MÉG VAN CONTRACTJA - NEM EZ NEM KELL
                     {
@@ -72,19 +73,57 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
                     {
                         // Get a better description
                         //labels[days - 1] = "OnTheWayToTheNextCity";
+                        OnTheSpotEvent?.Invoke(NextHop(currentMap, CurrentPosition).label, null);
                         _Greedy(ref currentMap/*, ref labels*/, NextHop(currentMap, CurrentPosition), days - 1);
                         //OnTheWayEvent?.Invoke(CurrentPosition.label);
                         //Console.WriteLine($"You have to travel to {CurrentPosition.label}");
-                        OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+                        //OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+                    }
+                }
+                else if (days > 0)
+                {
+                    if (HasContract(CurrentPosition) == true) //if the current position has a better contract then the neighbors - //&& CURRENTPOSITIONNEK MÉG VAN CONTRACTJA - NEM EZ NEM KELL
+                    {
+                        //labels[days - 1] = CurrentPosition.label;
+                        //B lehetőség 
+                        OnTheSpotEvent?.Invoke(CurrentPosition.label, CurrentPosition.GetCurrentContract());
+                        currentMap.RemoveFirstContractFromVertex(CurrentPosition);
+                        //CurrentPosition.RemoveFirstContract(); - TALÁN EZ A SZAR - DUPLÁN TÖRÖLTE AZ ELSŐ KONTRAKTOKAT
+
+                        _Greedy(ref currentMap/*, ref labels*/, CurrentPosition, days - 1);
+
+                    }
+                    else
+                    {
+                        // Get a better description
+                        //labels[days - 1] = "OnTheWayToTheNextCity";
+                        //_Greedy(ref currentMap/*, ref labels*/, NextHop(currentMap, CurrentPosition), days - 1);
+                        //OnTheWayEvent?.Invoke(CurrentPosition.label);
+                        //Console.WriteLine($"You have to travel to {CurrentPosition.label}");
+                        //OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+                        Console.WriteLine("\nThis is the end of your journey");
                     }
                 }
             }
-            else
+            //else
+            //{
+            //    _Greedy(ref currentMap/*, ref labels*/, NextHop(currentMap, CurrentPosition), days - 1);
+            //    //OnTheWayEvent?.Invoke(CurrentPosition.label);
+            //    //Console.WriteLine($"You have to travel to {CurrentPosition.label}");
+            //    OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+            //}
+            else if (days > 1) //IT SHOULD BE AT LEAST ONE BECAUSE IF WE TRAVEL TO AN ADJACENT CITY IT WOULD BECOME 0 IN CASE OF 1
             {
+                //MI VAN AKKOR HA NINCS KONTRAKTJA --> A LEGNAGYOBB POTENCIÁJÚ SZOMSZÉD FELE INDUL
+                OnTheSpotEvent?.Invoke(NextHop(currentMap, CurrentPosition).label, null);
                 _Greedy(ref currentMap/*, ref labels*/, NextHop(currentMap, CurrentPosition), days - 1);
                 //OnTheWayEvent?.Invoke(CurrentPosition.label);
                 //Console.WriteLine($"You have to travel to {CurrentPosition.label}");
-                OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+                //OnTheSpotEvent?.Invoke(CurrentPosition.label, null);OnTheSpotEvent?.Invoke(CurrentPosition.label, null);
+            }
+            else
+            {
+                Console.WriteLine("\nThis is the end of your journey.");
             }
         }
 
@@ -122,6 +161,14 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
             if (position.data.Count() > 1)
             {
                 if (position.data[0].GoldReward / position.data[0].HazardLevel + position.data[1].GoldReward / position.data[1].HazardLevel > q.data[0].GoldReward / q.data[0].HazardLevel)
+                {
+                    return false;
+                }
+                else return true;
+            }
+            else if (position.data.Count() == 1)
+            {
+                if (position.data[0].GoldReward / position.data[0].HazardLevel > q.data[0].GoldReward / q.data[0].HazardLevel)
                 {
                     return false;
                 }
@@ -175,10 +222,15 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
                         maxVertex = neighbor;////////////////////////////////////////////////////////
                     }///////////////////////////////////////////////////////////////////////
                 }
-                if (maxVertex != position)
+                if (maxVertex != position && TwoForOne(position, maxVertex) == true) //HA MAXVERTEX NEM EGYENLŐ A POZÍCIÓVAL ÉS MEGÉRI TOVÁBBÁLLNI
                 {
                     if (BetterPotential(position, maxVertex) == true) return maxVertex;
+                    else if (maxVertex.data[0].GoldReward / maxVertex.data[0].HazardLevel > position.data[0].GoldReward / position.data[0].HazardLevel) return maxVertex;
                     else return position;
+                }
+                else if (TwoForOne(position, maxVertex) == false)
+                {
+                    return position;
                 }
                 else return maxVertex;
             }
@@ -188,10 +240,18 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
                 //List<Vertex> neighbors = GetNeighborVertices(position.label); /////////////////////////TESZTELÉS
                 foreach (Vertex neighbor in /*neighbors*/position.neighbors) /////////////////////////////////////////////////
                 {/////////////////////////////////////////////////////////////////////////////
-                    if (ValueOfVertex(neighbor) > ValueOfVertex(maxVertex))////////////////////////////
-                    {///////////////////////////////////////////////////////////////////////
-                        maxVertex = neighbor;////////////////////////////////////////////////////////
-                    }///////////////////////////////////////////////////////////////////////
+                    if (neighbor.data.Count() > 0)
+                    {
+                        if (ValueOfVertex(neighbor) > ValueOfVertex(maxVertex))////////////////////////////
+                        {///////////////////////////////////////////////////////////////////////
+                            maxVertex = neighbor;////////////////////////////////////////////////////////
+                        }///////////////////////////////////////////////////////////////////////
+                    }
+                    //ELSE SZTEM IDE JÖN HA A CURRENT ÉS AZ ÖSSZES NEIGHBOR CONTRACTJA 0
+                }
+                if (maxVertex == position) //SE A CSÚŐCSNAK + EGYIK SZOMSZÉDJÁNAK SINCS EGY KONTRAKTJA SEM - AKKOR A POZÍCIÓ UTOLSÓ VERTEXÉRE UGRIK, HÉÁTHA OTT TÖBB SZERENCSÉJE LESZ
+                {
+                    maxVertex = position.neighbors[position.neighbors.Count()-1];
                 }
                 return maxVertex;
             }
@@ -225,7 +285,7 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
             return sumOfGold / sumOfHazards;
         }
 
-        private bool BetterNeighbor(CitiesGraphV2<ListOfContracts<Contract>, string> currentMap, Vertex position)
+        private bool BetterNeighbor(CitiesGraphV2<ListOfContracts<Contract>, string> currentMap, Vertex position) //TRUE HA MARAD MERT NINCS JOBB SZOMSZÉD
         {
             return NextHop(currentMap, position).label == position.label; //If the nextneighbor which compares position vertex contracts with position's neighbor contracts returnes the same vertex, it return true
         }
@@ -242,7 +302,7 @@ namespace Hagen_Daniel_HH5VQ6_The_Witcher
             else { return false; }
         }
 
-        public void DoQuest(string cityname, Contract contractname)
+        public void Adventure(string cityname, Contract contractname)
         {
             if (contractname == null)
             {
